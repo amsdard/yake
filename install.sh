@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-repoRawUrl="https://raw.githubusercontent.com/krzysztof-kabala/yake-1/master"
+repoRawUrl="https://raw.githubusercontent.com/amsdard/yake/master"
 
 # CHECK REQUIREMENTS
 requirements=( "perl" "cpan" "curl" )
@@ -12,7 +12,8 @@ done
 # CPAN DEPENDENCIES
 if [[ ! -z "$(perl -MYAML::XS -e 1 2>&1)" ]]; then
     echo "installing cpan module YAML::XS...";
-    cpan install YAML::XS >/dev/null 2>/dev/null
+    export PERL_MM_USE_DEFAULT=1
+    cpan install YAML::XS >/dev/null 2>&1
 fi
 
 # INSTALL BINARIES
