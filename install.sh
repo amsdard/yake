@@ -11,7 +11,8 @@ done
 
 # CPAN DEPENDENCIES
 if [[ ! -z "$(perl -MYAML -e 1 2>&1)" ]]; then
-    cpan install YAML
+    echo "installing cpan module YAML...";
+    cpan install YAML 2>/dev/null 2>&1
 fi
 
 # INSTALL BINARIES
