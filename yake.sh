@@ -4,7 +4,7 @@ cmd=`yakeCore.pl BIN=$0 $@`
 
 if [ $? != 0 ]; then
     echo "$cmd";
-    exit $ERROR_CODE
+    exit $?
 fi
 
 eval "$cmd";
