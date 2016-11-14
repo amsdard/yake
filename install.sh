@@ -10,9 +10,9 @@ do
 done
 
 # CPAN DEPENDENCIES
-if [[ ! -z "$(perl -MYAML -e 1 2>&1)" ]]; then
-    echo "installing cpan module YAML...";
-    cpan install YAML 2>/dev/null 2>&1
+if [[ ! -z "$(perl -MYAML::XS -e 1 2>&1)" ]]; then
+    echo "installing cpan module YAML::XS...";
+    cpan install YAML::XS >/dev/null 2>/dev/null
 fi
 
 # INSTALL BINARIES
@@ -24,11 +24,13 @@ fi
 
 curl -fsSL "$repoRawUrl/yakeCore.pl" -o "$installDir/yakeCore.pl"
 curl -fsSL "$repoRawUrl/yake.sh" -o "$installDir/yake"
+chmod +x "$installDir/yakeCore.pl" "$installDir/yake"
 
 # INSTALL AUTO-COMPLETION
 bashCompletionDir="/etc/bash_completion.d"
 if [[ -d $bashCompletionDir ]]; then
     curl -fsSL "$repoRawUrl/yake_completion.sh" -o "$bashCompletionDir/yake_completion.sh"
+    chmod +x "$bashCompletionDir/yake_completion.sh"
 fi
 
 # EXIT IF FAILS

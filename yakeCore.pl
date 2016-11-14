@@ -17,11 +17,12 @@ my $settings = {
 # PARSE ARGUMENTS
 my $CMDNAME = "";
 my @CMDARR = ();
+my $CMDSETTINGS = {};
 foreach my $argCmd (@ARGV) {
     if ($CMDNAME eq "" && index($argCmd, '=') != -1) {
         my @cmdTab = split /\=/, $argCmd;
         if ($#cmdTab == "1" && $cmdTab[0] ne "" && $cmdTab[0] =~ /[a-zA-Z0-9\_]/) {
-            $settings->{$cmdTab[0]} = $cmdTab[1];
+            $CMDSETTINGS->{$cmdTab[0]} = $cmdTab[1];
         }
     } elsif ($CMDNAME eq "") {
         $CMDNAME = $argCmd;
@@ -61,6 +62,11 @@ if ( exists $commands->{'_config'} ) {
         }
         $settings->{$varName} = $varValue;
     }
+}
+
+# OVERWRITE YAKEFILE CONFIG
+while( my( $varName, $varValue ) = each %{$CMDSETTINGS} ){
+    $settings->{$varName} = $varValue;
 }
 
 # COMPLETE CONFIG VARIBLES
