@@ -6,8 +6,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="yake - Yet Another maKe clonE. simple script to make Your coding simpler via executing long commands using short aliases from local YAML Yakefile">
-    <meta name="author" content="krzysztof.kabala@amsterdam-standard.pl">
+    <meta name="description" content="yake - Yet Another maKe clonE. Simple script to make Your coding more efficient
+by executing long commands using short aliases from local Yakefile">
+    <meta name="author" content="Amsterdam Standard">
 
     <title>YAKE - Yet Another Make Clone</title>
     <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAA3NCSVQICAjb4U/gAAAACXBIWXMAAADZAAAA2QGPriUVAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAIpQTFRF////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHzto8AAAAC10Uk5TAAECBgcIDBASIScoLjU7SVBWa3F4kpOanqGssrO0tba3u7zCxc3d4+nz9vn8KL9UfwAAAOlJREFUOMvNk8dywzAMBdei3HuXi2Q77uX9/+/lICoDURmdzRPI3RmCAAhfuS7Xfi3vSsNaYaZH45/jeDnyUaYNjJZxwI96dgBovjSl89SxZMQHKcnDsT5tSKSDMeJMSqI8XukMRImU/RnOcG5aUBjO89TwnjSgMFIH4PaGM9fdR1Ei7R24neX8aI0xdo5tibfemmCNbSBM9G4FQvmKtU4EV5STvGtOkGTpmQOpZ3jqwkItdDO8KJQp9Vkrw+NKs9ofjfODoFlFu6d6NQGq7fYDs1Hmt5WBAaDx0Kx2GodSt1boXy/f+RF/Ad4oHIgp6Id6AAAAAElFTkSuQmCC">
@@ -67,7 +68,7 @@
                         <a href="#features">Features</a>
                     </li>
                     <li class="page-scroll">
-                        <a href="#excamples">Excamples</a>
+                        <a href="#examples">Examples</a>
                     </li>
                 </ul>
             </div>
@@ -85,8 +86,8 @@
                     <div class="intro-text">
                         <span class="name">YAKE</span>
                         <hr class="star-light">
-                        <span class="skills">Simple script to <strong>make Your coding simpler</strong> <br>
-                            by executing long commands using short aliases from local <code>Yakefile</code></span>
+                        <span class="skills">Simple script to <strong>make Your coding more efficient</strong> <br>
+                            by executing long commands using short aliases from local <kbd>Yakefile</kbd></span>
                     </div>
                 </div>
             </div>
@@ -105,7 +106,7 @@
             <div class="row">
                 <div class="col-sm-10 col-sm-offset-1">
                     <blockquote><code>
-                        curl -sSf https://raw.githubusercontent.com/amsdard/yake/master/install.sh | sudo bash
+                        curl -sSf https://amsdard.github.io/yake/install.sh | sudo bash
                     </code></blockquote>
                     <br>
                     <h3>Requirements</h3>
@@ -146,13 +147,6 @@
                             <code>yake demo</code>
                         </li>
                     </ol>
-                    <br><br>
-                    <ul style="font-size: 14pt;">
-                        <li>
-                            Run <code>yake YAKEFILE=/path/yakeefile.yml demo</code> <br>
-                            to overwrite <kbd>Yakefile</kbd> file name
-                        </li>
-                    </ul>
                 </div>
             </div>
         </div>
@@ -195,8 +189,8 @@
         </div>
     </section>
 
-    <!-- Excamples Section -->
-    <section class="success" id="excamples">
+    <!-- Examples Section -->
+    <section class="success" id="examples">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12 text-center">
@@ -206,7 +200,7 @@
             </div>
             <div class="row" style="font-size: 16pt;">
                 <div class="col-lg-8 col-lg-offset-2">
-                    Excample content of <kbd>Yakefile</kbd> file:
+                    Example content of <kbd>Yakefile</kbd> file:
                     <pre><code class="language-yaml">hello_world: echo "hello world"
 
 run: echo "running..." && $CMD
@@ -223,35 +217,65 @@ _config:
     VAR3: var using VAR1="$VAR1" and VAR2=$VAR2</code></pre>
                     <br>
 
-                    <ul style="font-size: 14pt;">
-                        <li>
-                            <code>yake hello_world</code>
-                            <pre><code class="language-bash">hello world</code></pre><br>
-                        </li>
-                        <li>
-                            <code>yake run uname -i</code>
+                    <div class="row">
+                        <div class="col-lg-10 col-lg-offset-1">
+
+                            <blockquote>
+                                <code>yake hello_world</code>
+                            </blockquote>
+                            <pre><code class="language-bash">hello world</code></pre>
+                            <br>
+
+                            <blockquote>
+                                <code>yake run uname -i</code>
+                            </blockquote>
                             <pre><code class="language-bash">running...
-x86_64</code></pre><br>
-                        </li>
-                        <li>
-                            <code>yake VAR1=new1 demo uname -i</code>
+x86_64</code></pre>
+                            <br>
+
+                            <blockquote>
+                                <code>yake VAR1=new1 demo uname -i</code>
+                            </blockquote>
                             <pre><code class="language-bash">dumping demo vars
 VAR1 = new1
 VAR3 = var using VAR1=value1 and VAR2=var2 using value1
 running...
 x86_64</code></pre><br>
-                        </li>
-                        <li>
-                            <code>yake VAR1=new-value VAR3=$(uname -m) _config</code>
+
+                            <blockquote>
+                                <code>yake VAR1=new-value VAR3=$(uname -m) _config</code>
+                            </blockquote>
                             <pre><code class="language-bash">BIN=/usr/local/bin/yake
 CMD=
 VAR1=new-value
 VAR2=var2 using value1
 VAR3=x86_64
 YAKEFILE=Yakefile</code></pre><br>
+
+                        </div>
+                    </div>
+
+                    <h3>TIPS</h3>
+                    <ul>
+                        <li>
+                            You could use <strong>Environment variables</strong>, like <code>$HOME</code> but
+                            recommended way is to type <code>${HOME}</code> to split internal <strong>settings
+                        </strong> and <strong>ENVs
+                        </strong>
+                            <br><br>
+                        </li>
+                        <li>
+                            Its impossible to pass string with spaces as variable value, like:<br>
+                            <code>yake V="1 2 3" task</code>. Use <kbd>Yakefile</kbd> <strong>_config</strong>
+                            section instead.
+                            <br><br>
+                        </li>
+                        <li>
+                            Run <code>yake YAKEFILE=/path/yakeefile.yml demo</code> <br>
+                            to overwrite <kbd>Yakefile</kbd> file name
+                            <br><br>
                         </li>
                     </ul>
-
                 </div>
 
             </div>
