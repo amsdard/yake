@@ -14,8 +14,8 @@ simple script to make Your coding more efficient by executing long commands usin
 ```
 docker run --rm -it ubuntu bash
 apt-get update && apt-get install -y curl sudo build-essential 
-curl -sSf https://amsdard.github.io/yake/install.sh | sudo bash
-curl -sSf https://amsdard.github.io/yake/Yakefile > Yakefile
+curl -sSf https://yake.amsdard.io/install.sh | sudo bash
+curl -sSf https://yake.amsdard.io/Yakefile > Yakefile
 yake VAR1=xx demo uname -m
 ```
 
