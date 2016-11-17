@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-repoRawUrl="https://raw.githubusercontent.com/amsdard/yake/master"
+repoRawUrl="https://amsdard.github.io/yake"
 
 # CHECK REQUIREMENTS
 requirements=( "perl" "cpan" "curl" )
@@ -42,3 +42,4 @@ fi
 # INSTALLATION FINISHED SUCCESSFULLY
 echo "\"yake\" installed!";
 echo "Create \"Yakefile\" in Your directory and run \"yake YOUR_COMMAND\"";
+echo "Docs: http://yake.amsdard.io"

@@ -33,6 +33,10 @@ foreach my $argCmd (@ARGV) {
 if ($settings->{'CMD'} eq "") {
     $settings->{'CMD'} = join(' ', @CMDARR);
 }
+if ( $CMDNAME eq "" ) {
+    print "Usage: yake TASK_NAME\n";
+    exit 1;
+}
 
 # LOAD Yakefile
 my $pwd = cwd();
