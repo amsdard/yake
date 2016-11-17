@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-repoRawUrl="https://amsdard.github.io/yake"
+repoRawUrl="https://yake.amsdard.io"
 
 # CHECK REQUIREMENTS
 requirements=( "perl" "cpan" "curl" )
