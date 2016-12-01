@@ -10,6 +10,7 @@ use Data::Dumper;
 # GLOBAL SETTINGS
 my $settings = {
     YAKEFILE => "Yakefile",
+    FORCE_ALL => 0,
     BIN => $0,
     CMD => "",
 };
@@ -99,10 +100,11 @@ if ( ! ($commandType eq "" or $commandType eq "ARRAY") ) {
 }
 my $command = "";
 if ($commandType eq "ARRAY") {
-    $command = join(" && ", @{$commands->{$CMDNAME}});
+    $command = join(($settings->{'FORCE_ALL'} ? ' || true' : '')." && ", @{$commands->{$CMDNAME}});
 } else {
     $command = $commands->{$CMDNAME};
 }
+$command .= $settings->{'FORCE_ALL'} ? ' || true' : '';
 
 while( my( $varName, $varValue ) = each %{$settings} ){
     $varName = "\$$varName";
