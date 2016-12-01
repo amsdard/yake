@@ -118,6 +118,13 @@ by executing long commands using short aliases from local Yakefile">
                             <code>cpan</code> > 1.0 (<code>build-essential</code> package)
                         </li>
                     </ul>
+                    <br>
+                    <h3>Changelog</h3>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <strong>December 1, 2016</strong>: <code>FORCE_ALL</code> param, docs fixes
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -149,6 +156,29 @@ by executing long commands using short aliases from local Yakefile">
                     </ol>
                 </div>
             </div>
+            <br>
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2">
+                    <div class="well well-lg" style="background:#191919;font-size:large;">
+                        yake &nbsp;
+                        <strong style="color:yellow">VARIABLE=value [..]</strong> &nbsp;
+                        <strong STYLE="color: white;">TASK_NAME</strong> &nbsp;
+                        <strong style="color: greenyellow;">COMMAND WITH -PARAMS --AND=values</strong> &nbsp;
+                    </div>
+                    <ul style="font-size: 16pt;">
+                        <li>
+                            global settings and Your local <kbd>_config</kbd> section variables
+                            <strong style="color: yellow;">can be overwritten</strong> from console level
+                        </li>
+                        <li>
+                            You can use <strong>bash auto-completion</strong> to see and type defined tasks
+                        </li>
+                        <li>
+                            <strong style="color: greenyellow;">all commands, params and attributes</strong> (a string after <strong>TASK_NAME</strong>) <br>will be assigned to <code>$CMD</code> variable
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -171,10 +201,10 @@ by executing long commands using short aliases from local Yakefile">
                             able to definee commands as <strong>string</strong> or <strong>array</strong>
                         </li>
                         <li>
-                            internal <strong>recursive and able to overwrite</strong> varibles, e.g. <code>$CMD</code>
+                            internal <strong>recursive and able to overwrite</strong> variables, e.g. <code>$CMD</code>
                         </li>
                         <li>
-                            <strong>recursive</strong> commands, thanks to <code>$BIN</code> varible
+                            <strong>recursive</strong> commands, thanks to <code>$BIN</code> variable
                         </li>
                         <li>
                             bash <strong>auto-completion</strong>
@@ -274,6 +304,11 @@ YAKEFILE=Yakefile</code></pre><br>
                             Run <code>yake YAKEFILE=/path/yakeefile.yml demo</code> <br>
                             to overwrite <kbd>Yakefile</kbd> file name
                             <br><br>
+                        </li>
+                        <li>
+                            By default, <strong>if one of commands in specified task fails</strong> (return code is
+                            more than 0), it stops whole task. To <strong>force executing all commands</strong>, no
+                            matter what code is returned, set <code>FORCE_ALL=1</code> param.
                         </li>
                     </ul>
                 </div>
