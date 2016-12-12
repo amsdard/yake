@@ -72,7 +72,6 @@ if ( exists $commands->{'_config'} ) {
 # OVERWRITE YAKEFILE CONFIG
 while( my( $varName, $varValue ) = each %{$CMDSETTINGS} ){
     $settings->{$varName} = $varValue;
-    $settings->{'BIN'} .= " $varName=$varValue"
 }
 
 # COMPLETE CONFIG VARIBLES
@@ -90,6 +89,11 @@ while ($found > 0) {
             $settings->{$varName} =~ s/\Q$sName/$sValue/g;
         }
     }
+}
+
+# ADD CONFIG OVERWRITTIES TO BIN PATH
+while( my( $varName, $varValue ) = each %{$CMDSETTINGS} ){
+    $settings->{'BIN'} .= " $varName=$varValue"
 }
 
 # SHOW CONFIG IF REQUESTED
