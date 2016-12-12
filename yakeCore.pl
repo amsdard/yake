@@ -75,12 +75,25 @@ while( my( $varName, $varValue ) = each %{$CMDSETTINGS} ){
 }
 
 # COMPLETE CONFIG VARIBLES
-foreach my $varName (keys %{$settings})
-{
-    while( my( $sName, $sValue ) = each %{$commands->{'_config'}} ){
-        $sName = "\$$sName";
-        $settings->{$varName} =~ s/\Q$sName/$sValue/g;
+my $found = 1;
+while ($found > 0) {
+    $found = 0;
+    foreach my $varName (keys %{$settings}) {
+        foreach my $varSubName (keys %{$settings}) {
+            my $sName = "\$$varSubName";
+            my $sValue = $settings->{$varSubName};
+            my $varFounds = () = $settings->{$varName} =~ /\Q$sName/g;
+            if ($varFounds > 0) {
+                $found++;
+            }
+            $settings->{$varName} =~ s/\Q$sName/$sValue/g;
+        }
     }
+}
+
+# ADD CONFIG OVERWRITTIES TO BIN PATH
+while( my( $varName, $varValue ) = each %{$CMDSETTINGS} ){
+    $settings->{'BIN'} .= " $varName=$varValue"
 }
 
 # SHOW CONFIG IF REQUESTED
@@ -106,9 +119,17 @@ if ($commandType eq "ARRAY") {
 }
 $command .= $settings->{'FORCE_ALL'} ? ' || true' : '';
 
-while( my( $varName, $varValue ) = each %{$settings} ){
-    $varName = "\$$varName";
-    $command =~ s/\Q$varName/$varValue/g;
+my $cmdFound = 1;
+while ($cmdFound > 0) {
+    $cmdFound = 0;
+    while( my( $varName, $varValue ) = each %{$settings} ){
+        $varName = "\$$varName";
+        my $varFounds = () = $command =~ /\Q$varName/g;
+        if ($varFounds > 0) {
+            $cmdFound++;
+        }
+        $command =~ s/\Q$varName/$varValue/g;
+    }
 }
 
 print $command . "\n";
