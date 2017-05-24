@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cmd=`yakeCore.pl BIN=$0 $@`
+cmd=`$(dirname "$0")/yakeCore.pl BIN=$0 $@`
 
 if [ $? != 0 ]; then
     echo "$cmd";

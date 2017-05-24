@@ -1,5 +1,16 @@
 #!/usr/bin/env perl
 
+use constant {
+    VERSION => '2.0',
+    YAKE_URL => 'http://yake.app',
+    VAR_MODE => 1,
+    VALUE_MODE => 2,
+    VALUE_QUOT_MODE => 3,
+    VALUE_DQUOT_MODE => 4,
+    PARAM_MODE => 5,
+    CMD_MODE => 6
+};
+
 use strict;
 use warnings FATAL => 'all';
 
@@ -15,27 +26,99 @@ my $settings = {
     CMD => "",
 };
 
+# helpers
+sub  trim { my $s = shift; $s =~ s/^\s+|\s+$//g; return $s };
+sub ltrim { my $s = shift; $s =~ s/^\s|\-+//;       return $s };
+
 # PARSE ARGUMENTS
 my $CMDNAME = "";
-my @CMDARR = ();
 my $CMDSETTINGS = {};
-foreach my $argCmd (@ARGV) {
-    if ($CMDNAME eq "" && index($argCmd, '=') != -1) {
-        my @cmdTab = split /\=/, $argCmd;
-        if ($#cmdTab == "1" && $cmdTab[0] ne "" && $cmdTab[0] =~ /[a-zA-Z0-9\_]/) {
-            $CMDSETTINGS->{$cmdTab[0]} = $cmdTab[1];
+my $CMDPARAMS = {};
+my $argsMode = VAR_MODE;
+my $vStorageVar = "";
+my $vStorage = undef;
+
+foreach my $v (split //, "@ARGV ") {
+    if ($argsMode eq VALUE_MODE or $argsMode eq VALUE_QUOT_MODE or $argsMode eq VALUE_DQUOT_MODE) {
+        my $endChar = " ";
+        if ($argsMode eq VALUE_QUOT_MODE) {
+            $endChar = "'";
+        } elsif ($argsMode eq VALUE_DQUOT_MODE) {
+            $endChar = '"';
         }
-    } elsif ($CMDNAME eq "") {
-        $CMDNAME = $argCmd;
+
+        if (defined $vStorage and $v eq $endChar) {
+            $CMDSETTINGS->{$vStorageVar} = $vStorage;
+            $vStorage = undef;
+            $vStorageVar = "";
+            $argsMode = VAR_MODE;
+            next;
+        }
+    }
+
+    if ($argsMode eq PARAM_MODE and defined $vStorage and ($v eq " " or $v eq "=")) {
+        $CMDPARAMS->{ltrim $vStorage} = 1;
+        $vStorage = undef;
+        $argsMode = VAR_MODE;
+        next;
+    }
+
+    if ($argsMode eq VAR_MODE) {
+        if (defined $vStorage) {
+            if ($v eq '=') {
+                $vStorageVar = $vStorage;   $vStorage = undef;
+                $argsMode = VALUE_MODE;
+                next;
+            } elsif ($v eq " ") {
+                $CMDNAME = trim $vStorage;   $vStorage = undef;
+                $argsMode = CMD_MODE;
+                next;
+            } elsif ($v eq '-') {
+                $argsMode = PARAM_MODE;
+            }
+        }
+    } elsif ($argsMode == VALUE_MODE) {
+        if ( ! defined $vStorage) {
+            if ($v eq "'") {
+                $argsMode = VALUE_QUOT_MODE;
+                next;
+            } elsif ($v eq '"') {
+                $argsMode = VALUE_DQUOT_MODE;
+                next;
+            }
+        }
+    }
+
+    if (defined $vStorage) {
+        $vStorage .= $v;
     } else {
-        push @CMDARR, $argCmd;
+        $vStorage = $v;
     }
 }
-if ($settings->{'CMD'} eq "") {
-    $settings->{'CMD'} = join(' ', @CMDARR);
+
+if (defined $vStorage) {
+    if ($argsMode == CMD_MODE) {
+        $settings->{'CMD'} = $vStorage;
+    } else {
+        $CMDNAME = $vStorage;
+    }
 }
-if ( $CMDNAME eq "" ) {
-    print "Usage: yake TASK_NAME\n";
+
+#print Dumper($CMDNAME, $CMDSETTINGS, $CMDPARAMS, $settings->{'CMD'}, $argsMode);exit 1;
+
+if ( $CMDPARAMS->{'version'} ) {
+    my $versionUrl = YAKE_URL . "/VERSION";
+    my $currVarsion = `curl -m 5 -sSf $versionUrl`;
+    print $currVarsion;
+    print "Do not use params with regular usage\n";
+    exit 1;
+}
+if ( $CMDPARAMS->{'help'} or (keys $CMDPARAMS > 0 and $CMDNAME ne "") or $CMDNAME eq "" ) {
+    print "Usage: $CMDSETTINGS->{BIN} [options...] <task> <CMD>\n";
+    print "\t--version\t see Yake version and check updates\n";
+    print "\t--help\t\t show docs \n";
+    print "\t--upgrade\t execute Yake upgrade to latest version \n";
+    print "\t--debug\t\t do not execute task, show script params and full command as text (able to use with <task> only) \n";
     exit 1;
 }
 
