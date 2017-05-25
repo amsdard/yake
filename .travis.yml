@@ -2,9 +2,8 @@ language: bash
 
 before_install:
     - sudo apt-get install build-essential shunit2
-
-before_script:
-    - ./src/install.sh | sudo bash
+    - export PERL_MM_USE_DEFAULT=1
+    - cpan install YAML::XS
 
 script:
     - shunit2 ./tests/yake.sh
