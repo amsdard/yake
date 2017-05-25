@@ -1,5 +1,12 @@
 #!/usr/bin/env perl
 
+use strict;
+use warnings FATAL => 'all';
+
+use Cwd;
+use YAML::XS 'LoadFile';
+use Data::Dumper;
+
 use constant {
     VERSION => '2.0',
     YAKE_URL => 'http://yake.app',
@@ -11,13 +18,6 @@ use constant {
     CMD_MODE => 6
 };
 
-use strict;
-use warnings FATAL => 'all';
-
-use Cwd;
-use YAML::XS 'LoadFile';
-use Data::Dumper;
-
 # GLOBAL SETTINGS
 my $settings = {
     YAKEFILE => "Yakefile",
@@ -25,10 +25,6 @@ my $settings = {
     BIN => $0,
     CMD => "",
 };
-
-# helpers
-sub  trim { my $s = shift; $s =~ s/^\s+|\s+$//g; return $s };
-sub ltrim { my $s = shift; $s =~ s/^\s|\-+//;       return $s };
 
 # PARSE ARGUMENTS
 my $CMDNAME = "";
@@ -49,6 +45,9 @@ foreach my $v (split //, "@ARGV ") {
 
         if (defined $vStorage and $v eq $endChar) {
             $CMDSETTINGS->{$vStorageVar} = $vStorage;
+            if ($vStorageVar eq "YAKEFILE") {
+                $settings->{YAKEFILE} = $vStorage;
+            }
             $vStorage = undef;
             $vStorageVar = "";
             $argsMode = VAR_MODE;
@@ -107,10 +106,17 @@ if (defined $vStorage) {
 #print Dumper($CMDNAME, $CMDSETTINGS, $CMDPARAMS, $settings->{'CMD'}, $argsMode);exit 1;
 
 if ( $CMDPARAMS->{'version'} ) {
+    print "yake " . VERSION . " ";
+
     my $versionUrl = YAKE_URL . "/VERSION";
-    my $currVarsion = `curl -m 5 -sSf $versionUrl`;
-    print $currVarsion;
-    print "Do not use params with regular usage\n";
+    my $currVarsion = `curl -m 5 -sSf $versionUrl 2>/dev/null`;
+    if ( $currVarsion ne VERSION ) {
+        print "(latest available version is $currVarsion)\n";
+        print "To update your Yake, run:\n\t$CMDSETTINGS->{BIN} --upgrade";
+    } else {
+        print "(you have the latest version)"
+    }
+    print "\n";
     exit 1;
 }
 if ( $CMDPARAMS->{'help'} or (keys $CMDPARAMS > 0 and $CMDNAME ne "") or $CMDNAME eq "" ) {
@@ -119,7 +125,17 @@ if ( $CMDPARAMS->{'help'} or (keys $CMDPARAMS > 0 and $CMDNAME ne "") or $CMDNAM
     print "\t--help\t\t show docs \n";
     print "\t--upgrade\t execute Yake upgrade to latest version \n";
     print "\t--debug\t\t do not execute task, show script params and full command as text (able to use with <task> only) \n";
+
+    print "Special task names:\n";
+    print "\t_config\t\t show internal variables\n";
+    print "\t_tasks\t\t show defined tasks with filled variables\n";
+
+    print "\n" . YAKE_URL . "\n";
     exit 1;
+}
+if ( $CMDPARAMS->{'upgrade'} ) {
+    print "curl -sSf " .YAKE_URL. "/install.sh | sudo bash";
+    exit 0;
 }
 
 # LOAD Yakefile
@@ -130,7 +146,7 @@ if (! -f $yakefile) {
     exit 1;
 }
 my $commands = LoadFile($yakefile);
-if ( ! exists $commands->{$CMDNAME} ) {
+if ( ! exists $commands->{$CMDNAME} and $CMDNAME ne "_config" and $CMDNAME ne "_tasks" ) {
     print "Cant find \"$CMDNAME\" task in Your \"$settings->{YAKEFILE}\"\n";
     exit 1;
 }
@@ -186,6 +202,17 @@ if ($CMDNAME eq "_config") {
         print "$varName=$varValue\n";
     }
     exit 1;
+} elsif ($CMDNAME eq "_tasks") {
+    my $maxTaskLen = (sort{$b<=>$a} map{length($_)} keys %{$commands} )[0]+5;
+    foreach my $taskName (sort keys %{$commands}) {
+        if (substr($taskName, 0, 1) eq "_") { next; }
+        my $command = $commands->{$taskName};
+        if (ref $command eq "ARRAY") {
+            $command = join " && ", @{$command};
+        }
+        printf "%-${maxTaskLen}s %s\n", $taskName, parseCommand($command, $settings);
+    }
+    exit 1;
 }
 
 # GENERATE COMMAND
@@ -194,25 +221,46 @@ if ( ! ($commandType eq "" or $commandType eq "ARRAY") ) {
     print "Your task \"$CMDNAME\" must be an array or a string, \"$commandType\" found.\n";
     exit 1;
 }
-my $command = "";
-if ($commandType eq "ARRAY") {
-    $command = join(($settings->{'FORCE_ALL'} ? ' || true' : '')." && ", @{$commands->{$CMDNAME}});
-} else {
-    $command = $commands->{$CMDNAME};
-}
-$command .= $settings->{'FORCE_ALL'} ? ' || true' : '';
 
-my $cmdFound = 1;
-while ($cmdFound > 0) {
-    $cmdFound = 0;
-    while( my( $varName, $varValue ) = each %{$settings} ){
-        $varName = "\$$varName";
-        my $varFounds = () = $command =~ /\Q$varName/g;
-        if ($varFounds > 0) {
-            $cmdFound++;
-        }
-        $command =~ s/\Q$varName/$varValue/g;
+print parseCommand($commands->{$CMDNAME}, $settings) . "\n";
+
+# helpers
+sub  trim {
+    my $s = shift;
+    $s =~ s/^\s+|\s+$//g;
+    return $s
+};
+
+sub ltrim {
+    my $s = shift;
+    $s =~ s/^\s|\-+//;
+    return $s
+};
+
+sub parseCommand {
+    my $command = shift;
+    my $settings = shift;
+    my $force = shift || $settings->{'FORCE_ALL'};
+
+    if (ref($command) eq "ARRAY") {
+        $command = join(($force ? ' || true' : '')." && ", @{$command});
+    } elsif (ref($command) eq "") { } else {
+        return "";
     }
-}
+    $command .= $force ? ' || true' : '';
 
-print $command . "\n";
+    my $cmdFound = 1;
+    while ($cmdFound > 0) {
+        $cmdFound = 0;
+        while( my( $varName, $varValue ) = each %{$settings} ){
+            $varName = "\$$varName";
+            my $varFounds = () = $command =~ /\Q$varName/g;
+            if ($varFounds > 0) {
+                $cmdFound++;
+            }
+            $command =~ s/\Q$varName/$varValue/g;
+        }
+    }
+
+    return $command;
+};

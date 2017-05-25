@@ -9,6 +9,19 @@ testYake()
 
 }
 
+# special parameters
+testParams()
+{
+    $YAKE_BIN 2>&1 | grep -Eq ^Usage
+    assertEquals $? 0;
+
+    $YAKE_BIN --help 2>&1 | grep -Eq ^Usage
+    assertEquals $? 0;
+
+    $YAKE_BIN --version 2>&1 | grep -Eq ^yake
+    assertEquals $? 0;
+}
+
 # change Yakefile name
 testYakefile()
 {

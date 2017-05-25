@@ -10,9 +10,13 @@ simple script to make Your coding more efficient by executing long commands usin
 * http://yake.amsdard.io 
 * `./doc/index.html`
 
-## Tests
+## Install
 ```
 curl -sSf https://yake.amsdard.io/install.sh | sudo bash
+```
+
+## Tests
+```
 shunit2 ./tests/yake.sh
 ```
 
