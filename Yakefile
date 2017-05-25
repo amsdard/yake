@@ -4,11 +4,12 @@ run: echo "running..." && $CMD
 
 demo:
   - echo "dumping demo vars"
-  - echo "VAR1 = $VAR1"
+  - echo "VAR1 = $VAR1 and VAR11 = $VAR11"
   - echo "VAR3 = $VAR3"
   - $BIN run $CMD
 
 _config:
-  VAR1: value1
-  VAR2: var2 using $VAR1
-  VAR3: var using VAR1="$VAR1" and VAR2=$VAR2
+  VAR1: one
+  VAR11: eleven
+  VAR2: two $VAR1
+  VAR3: tree VAR1="$VAR1" and VAR2=$VAR2

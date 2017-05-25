@@ -26,6 +26,52 @@ my $settings = {
     CMD => "",
 };
 
+# helpers
+sub  trim {
+    my $s = shift;
+    $s =~ s/^\s+|\s+$//g;
+    return $s
+};
+
+sub ltrim {
+    my $s = shift;
+    $s =~ s/^\s|\-+//;
+    return $s
+};
+
+sub parseCommand {
+    my $command = shift;
+    my $settings = shift;
+    my $force = shift || $settings->{'FORCE_ALL'};
+
+    if (ref($command) eq "ARRAY") {
+        $command = join(($force ? ' || true' : '')." && ", @{$command});
+    } elsif (ref($command) eq "") { } else {
+        return "";
+    }
+    $command .= $force ? ' || true' : '';
+
+    my @sortedSettings = sort { $b cmp $a } keys %{$settings};
+
+    my $cmdFound = 1;
+    while ($cmdFound > 0) {
+        $cmdFound = 0;
+        my $varName;
+        while ( defined($varName = shift @{sortedSettings}) ) {
+            my $varValue = $settings->{$varName};
+            $varName = "\$$varName";
+
+            my $varFounds = () = $command =~ /\Q$varName/g;
+            if ($varFounds > 0) {
+                $cmdFound++;
+            }
+            $command =~ s/\Q$varName/$varValue/g;
+        }
+    }
+
+    return $command;
+};
+
 # PARSE ARGUMENTS
 my $CMDNAME = "";
 my $CMDSETTINGS = {};
@@ -197,20 +243,21 @@ while( my( $varName, $varValue ) = each %{$CMDSETTINGS} ){
 
 # SHOW CONFIG IF REQUESTED
 if ($CMDNAME eq "_config") {
+    my $maxKeyLen = (sort{$b<=>$a} map{length($_)} keys %{$settings} )[0];
+
     foreach my $varName (sort keys %{$settings}) {
-        my $varValue = $settings->{$varName};
-        print "$varName=$varValue\n";
+        printf "%-${maxKeyLen}s\t%s\n", $varName, $settings->{$varName};
     }
     exit 1;
 } elsif ($CMDNAME eq "_tasks") {
-    my $maxTaskLen = (sort{$b<=>$a} map{length($_)} keys %{$commands} )[0]+5;
+    my $maxTaskLen = (sort{$b<=>$a} map{length($_)} keys %{$commands} )[0];
     foreach my $taskName (sort keys %{$commands}) {
         if (substr($taskName, 0, 1) eq "_") { next; }
         my $command = $commands->{$taskName};
         if (ref $command eq "ARRAY") {
             $command = join " && ", @{$command};
         }
-        printf "%-${maxTaskLen}s %s\n", $taskName, parseCommand($command, $settings);
+        printf "%-${maxTaskLen}s\t%s\n", $taskName, parseCommand($command, $settings);
     }
     exit 1;
 }
@@ -223,44 +270,3 @@ if ( ! ($commandType eq "" or $commandType eq "ARRAY") ) {
 }
 
 print parseCommand($commands->{$CMDNAME}, $settings) . "\n";
-
-# helpers
-sub  trim {
-    my $s = shift;
-    $s =~ s/^\s+|\s+$//g;
-    return $s
-};
-
-sub ltrim {
-    my $s = shift;
-    $s =~ s/^\s|\-+//;
-    return $s
-};
-
-sub parseCommand {
-    my $command = shift;
-    my $settings = shift;
-    my $force = shift || $settings->{'FORCE_ALL'};
-
-    if (ref($command) eq "ARRAY") {
-        $command = join(($force ? ' || true' : '')." && ", @{$command});
-    } elsif (ref($command) eq "") { } else {
-        return "";
-    }
-    $command .= $force ? ' || true' : '';
-
-    my $cmdFound = 1;
-    while ($cmdFound > 0) {
-        $cmdFound = 0;
-        while( my( $varName, $varValue ) = each %{$settings} ){
-            $varName = "\$$varName";
-            my $varFounds = () = $command =~ /\Q$varName/g;
-            if ($varFounds > 0) {
-                $cmdFound++;
-            }
-            $command =~ s/\Q$varName/$varValue/g;
-        }
-    }
-
-    return $command;
-};
