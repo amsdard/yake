@@ -6,4 +6,5 @@ before_install:
     - cpan install YAML::XS
 
 script:
+    - export PERL5LIB=/home/travis/perl5/lib/perl5/x86_64-linux-gnu-thread-multi/
     - shunit2 ./tests/yake.sh
