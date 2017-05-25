@@ -1,0 +1,8 @@
+language: perl
+
+before_script:
+    - curl -L "https://shunit2.googlecode.com/files/shunit2-2.1.6.tgz" | tar zx
+    - ./src/install.sh | sudo bash
+
+script:
+    - ./shunit2-2.1.6/src/shunit2 ./tests/yake.sh

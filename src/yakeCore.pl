@@ -24,6 +24,7 @@ my $settings = {
     FORCE_ALL => 0,
     BIN => $0,
     CMD => "",
+    ARGS => ""
 };
 
 # helpers
@@ -214,9 +215,16 @@ if ( exists $commands->{'_config'} ) {
     }
 }
 
-# OVERWRITE YAKEFILE CONFIG
+# OVERWRITE YAKEFILE CONFIG + DEFINEE ARGS EXCEPT BIN
 while( my( $varName, $varValue ) = each %{$CMDSETTINGS} ){
     $settings->{$varName} = $varValue;
+
+    if ($varName eq "BIN") { next; }
+
+    if ($settings->{'ARGS'} ne "") {
+        $settings->{'ARGS'} .= " ";
+    }
+    $settings->{'ARGS'} .= $varName . "=" . (($varValue =~ /\s+/) ? "\\\"$varValue\\\"" : "$varValue");
 }
 
 # COMPLETE CONFIG VARIBLES
@@ -237,9 +245,7 @@ while ($found > 0) {
 }
 
 # ADD CONFIG OVERWRITTIES TO BIN PATH
-while( my( $varName, $varValue ) = each %{$CMDSETTINGS} ){
-    $settings->{'BIN'} .= " $varName=$varValue"
-}
+$settings->{"BIN"} .= " " . $settings->{'ARGS'} . " BIN=\"$CMDSETTINGS->{BIN}\"";
 
 # SHOW CONFIG IF REQUESTED
 if ($CMDNAME eq "_config") {
