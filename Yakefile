@@ -8,6 +8,12 @@ demo:
   - echo "VAR3 = $VAR3"
   - $BIN run $CMD
 
+.empty-task-name:
+
+-cor.rect({TASK}NA<ME>):
+  -
+  -
+
 _config:
   VAR1: one
   VAR11: eleven

@@ -14,8 +14,9 @@ use constant {
     VALUE_MODE => 2,
     VALUE_QUOT_MODE => 3,
     VALUE_DQUOT_MODE => 4,
-    PARAM_MODE => 5,
-    CMD_MODE => 6
+    PARAM_INIT_MODE => 5,
+    PARAM_MODE => 6,
+    CMD_MODE => 7
 };
 
 # GLOBAL SETTINGS
@@ -46,7 +47,7 @@ sub parseCommand {
     my $force = shift || $settings->{'FORCE_ALL'};
 
     if (ref($command) eq "ARRAY") {
-        $command = join(($force ? ' || true' : '')." && ", @{$command});
+        $command = join(($force ? ' || true' : '')." && ", grep defined, @{$command});
     } elsif (ref($command) eq "") { } else {
         return "";
     }
@@ -82,6 +83,10 @@ my $vStorageVar = "";
 my $vStorage = undef;
 
 foreach my $v (split //, "@ARGV ") {
+    if ($argsMode eq PARAM_INIT_MODE) {
+        $argsMode = ($v eq "-") ? PARAM_MODE : VAR_MODE;
+    }
+
     if ($argsMode eq VALUE_MODE or $argsMode eq VALUE_QUOT_MODE or $argsMode eq VALUE_DQUOT_MODE) {
         my $endChar = " ";
         if ($argsMode eq VALUE_QUOT_MODE) {
@@ -119,8 +124,10 @@ foreach my $v (split //, "@ARGV ") {
                 $CMDNAME = trim $vStorage;   $vStorage = undef;
                 $argsMode = CMD_MODE;
                 next;
-            } elsif ($v eq '-') {
-                $argsMode = PARAM_MODE;
+            }
+        } else {
+            if ($v eq '-') {
+                $argsMode = PARAM_INIT_MODE;
             }
         }
     } elsif ($argsMode == VALUE_MODE) {
@@ -256,7 +263,7 @@ if ($CMDNAME eq "_config" || $CMDPARAMS->{'debug'}) {
     my $maxKeyLen = (sort{$b<=>$a} map{length($_)} keys %{$settings} )[0];
 
     foreach my $varName (sort keys %{$settings}) {
-        printf "%-${maxKeyLen}s\t%s\n", $varName, $settings->{$varName};
+        printf "%-${maxKeyLen}s\t\t%s\n", $varName, $settings->{$varName};
     }
 
     if ( ! $CMDPARAMS->{'debug'}) {
@@ -267,10 +274,10 @@ if ($CMDNAME eq "_config" || $CMDPARAMS->{'debug'}) {
     foreach my $taskName (sort keys %{$commands}) {
         if (substr($taskName, 0, 1) eq "_") { next; }
         my $command = $commands->{$taskName};
-        if (ref $command eq "ARRAY") {
-            $command = join " && ", @{$command};
+        if (ref $command eq "ARRAY" and @{$command}) {
+            $command = join " && ", grep defined, @{$command};
         }
-        printf "%-${maxTaskLen}s\t%s\n", $taskName, parseCommand($command, $settings, 0);
+        printf "%-${maxTaskLen}s\t\t%s\n", $taskName, parseCommand($command, $settings, 0);
     }
     exit 1;
 }
