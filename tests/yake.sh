@@ -21,6 +21,12 @@ testParams()
 
     $YAKE_BIN --version 2>&1 | grep -Eq '^yake'
     assertEquals "$?" "0";
+
+    $YAKE_BIN --debug demo echo 1 2>&1 | grep -Eq 'ARGS'
+    assertEquals "$?" "0";
+
+    $YAKE_BIN --debug demo echo 1 2>&1 | grep -Eq 'run echo 1'
+    assertEquals "$?" "0";
 }
 
 # internal and user config

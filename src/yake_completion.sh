@@ -1,24 +1,19 @@
 #!/usr/bin/env bash
 
 _yake() {
-  YAKEFILE=$(echo $COMP_LINE | awk 'match($0, / YAKEFILE[ =]([^ ]+)/, awkrules) {print awkrules[1]}')
+  YAKEFILE=$(echo "$COMP_LINE" | perl -nle 'm/YAKEFILE=["]?(.*)[ "]+/; print $1')
   YAKEFILE=${YAKEFILE:-Yakefile}
-  local opts
-  case "${COMP_WORDS[COMP_CWORD-1]}" in
-    -file)
-       local IFS=$'\n'
-       COMPREPLY=( $( compgen -o plusdirs  -f  -- ${COMP_WORDS[COMP_CWORD]} ) )
-       return 0
-      ;;
-    *)
-      opts=""
-      if test -f "$YAKEFILE"
+
+  tasks=""
+  configs=""
+
+  if test -f "$YAKEFILE"
       then
-        opts=$(awk -F: '/^\S/ {print $1}' "$YAKEFILE")
+        tasks=$(yake YAKEFILE="$YAKEFILE" _tasks | awk '{print $1}')
+        configs=$(yake YAKEFILE="$YAKEFILE" _config | awk '{print $1}')
       fi
-      ;;
-  esac
-  COMPREPLY=($(compgen -W "${opts}" -- ${COMP_WORDS[COMP_CWORD]}))
+
+  COMPREPLY=($(compgen -W "--version --help --update --debug _config _tasks ${configs} ${tasks}" -- ${COMP_WORDS[COMP_CWORD]}))
   return 0
 }
 

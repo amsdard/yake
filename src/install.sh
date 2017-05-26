@@ -41,5 +41,6 @@ fi
 
 # INSTALLATION FINISHED SUCCESSFULLY
 echo "\"yake\" installed!";
-echo "Create \"Yakefile\" in Your directory and run \"yake YOUR_COMMAND\"";
-echo "Docs: http://yake.amsdard.io"
+echo "";
+echo "You can run now:"
+echo "\$ yake --help";

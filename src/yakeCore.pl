@@ -166,7 +166,11 @@ if ( $CMDPARAMS->{'version'} ) {
     print "\n";
     exit 1;
 }
-if ( $CMDPARAMS->{'help'} or (keys $CMDPARAMS > 0 and $CMDNAME ne "") or $CMDNAME eq "" ) {
+if (
+    $CMDPARAMS->{'help'} or
+    (keys %{$CMDPARAMS} > 0 and $CMDNAME ne "" and !$CMDPARAMS->{'debug'}) or
+    $CMDNAME eq ""
+) {
     print "Usage: $CMDSETTINGS->{BIN} [options...] <task> <CMD>\n";
     print "\t--version\t see Yake version and check updates\n";
     print "\t--help\t\t show docs \n";
@@ -248,13 +252,16 @@ while ($found > 0) {
 $settings->{"BIN"} .= " " . $settings->{'ARGS'} . " BIN=\"$CMDSETTINGS->{BIN}\"";
 
 # SHOW CONFIG IF REQUESTED
-if ($CMDNAME eq "_config") {
+if ($CMDNAME eq "_config" || $CMDPARAMS->{'debug'}) {
     my $maxKeyLen = (sort{$b<=>$a} map{length($_)} keys %{$settings} )[0];
 
     foreach my $varName (sort keys %{$settings}) {
         printf "%-${maxKeyLen}s\t%s\n", $varName, $settings->{$varName};
     }
-    exit 1;
+
+    if ( ! $CMDPARAMS->{'debug'}) {
+        exit 1;
+    }
 } elsif ($CMDNAME eq "_tasks") {
     my $maxTaskLen = (sort{$b<=>$a} map{length($_)} keys %{$commands} )[0];
     foreach my $taskName (sort keys %{$commands}) {
@@ -263,7 +270,7 @@ if ($CMDNAME eq "_config") {
         if (ref $command eq "ARRAY") {
             $command = join " && ", @{$command};
         }
-        printf "%-${maxTaskLen}s\t%s\n", $taskName, parseCommand($command, $settings);
+        printf "%-${maxTaskLen}s\t%s\n", $taskName, parseCommand($command, $settings, 0);
     }
     exit 1;
 }
@@ -275,4 +282,10 @@ if ( ! ($commandType eq "" or $commandType eq "ARRAY") ) {
     exit 1;
 }
 
+if ($CMDPARAMS->{'debug'}) {
+    print "\n";
+}
 print parseCommand($commands->{$CMDNAME}, $settings) . "\n";
+if ($CMDPARAMS->{'debug'}) {
+    exit 1;
+}
