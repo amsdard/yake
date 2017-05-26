@@ -1,6 +1,7 @@
 language: bash
 
 before_install:
+    - export PERL_MM_USE_DEFAULT=1
     - sudo apt-get install build-essential shunit2
     - sudo cpan install YAML::XS
 
