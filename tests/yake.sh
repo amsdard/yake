@@ -3,21 +3,23 @@
 # basic commands
 testYake()
 {
-    assertEquals "`$YAKE_BIN hello_world`" $'hello world';
+    $YAKE_BIN hello_world | grep -Eq '^hello world'
+    assertEquals "$?" "0";
 
-    assertEquals "`$YAKE_BIN run echo 1`" $'running...\n1';
+    $YAKE_BIN run echo "grep me" | grep -Eq 'grep me'
+    assertEquals "$?" "0";
 }
 
 # special parameters
 testParams()
 {
-    $YAKE_BIN 2>&1 | grep -Eq ^Usage
+    $YAKE_BIN 2>&1 | grep -Eq '^Usage'
     assertEquals "$?" "0";
 
-    $YAKE_BIN --help 2>&1 | grep -Eq ^Usage
+    $YAKE_BIN --help 2>&1 | grep -Eq ^'Usage'
     assertEquals "$?" "0";
 
-    $YAKE_BIN --version 2>&1 | grep -Eq ^yake
+    $YAKE_BIN --version 2>&1 | grep -Eq '^yake'
     assertEquals "$?" "0";
 }
 
