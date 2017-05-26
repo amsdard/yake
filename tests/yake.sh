@@ -46,7 +46,8 @@ testConfig()
 testYakefile()
 {
     mv Yakefile yakefile.yml
-    assertEquals "`$YAKE_BIN YAKEFILE=yakefile.yml hello_world`" $'hello world';
+    $YAKE_BIN YAKEFILE=yakefile.yml hello_world | grep -Eq '^hello world'
+    assertEquals "$?" "0";
     mv yakefile.yml Yakefile
 }
 
