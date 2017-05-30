@@ -27,6 +27,7 @@ my $settings = {
     CMD => "",
     ARGS => ""
 };
+my $initialSettingKeys = { %$settings };
 
 # helpers
 sub  trim {
@@ -159,14 +160,14 @@ if (defined $vStorage) {
 
 #print Dumper($CMDNAME, $CMDSETTINGS, $CMDPARAMS, $settings->{'CMD'}, $argsMode);exit 1;
 
-if ( $CMDPARAMS->{'version'} ) {
+if ( exists $CMDPARAMS->{'version'} ) {
     print "yake " . VERSION . " ";
 
     my $versionUrl = YAKE_URL . "/VERSION";
-    my $currVarsion = `curl -m 5 -sSf $versionUrl 2>/dev/null`;
+    my $currVarsion = `curl -m 5 -sSf $versionUrl 2>/dev/null` || '-';
     if ( $currVarsion ne VERSION ) {
         print "(latest available version is $currVarsion)\n";
-        print "To update your Yake, run:\n\t$CMDSETTINGS->{BIN} --upgrade";
+        print "To update your Yake, run:\n\tyake --upgrade";
     } else {
         print "(you have the latest version)"
     }
@@ -174,11 +175,11 @@ if ( $CMDPARAMS->{'version'} ) {
     exit 1;
 }
 if (
-    $CMDPARAMS->{'help'} or
-    (keys %{$CMDPARAMS} > 0 and $CMDNAME ne "" and !$CMDPARAMS->{'debug'}) or
+    exists $CMDPARAMS->{'help'} or
+    (keys %{$CMDPARAMS} > 0 and $CMDNAME ne "" and ! exists $CMDPARAMS->{'debug'}) or
     $CMDNAME eq ""
 ) {
-    print "Usage: $CMDSETTINGS->{BIN} [options...] <task> <CMD>\n";
+    print "Usage: yake [options...] <task> <CMD>\n";
     print "\t--version\t see Yake version and check updates\n";
     print "\t--help\t\t show docs \n";
     print "\t--upgrade\t execute Yake upgrade to latest version \n";
@@ -191,7 +192,7 @@ if (
     print "\n" . YAKE_URL . "\n";
     exit 1;
 }
-if ( $CMDPARAMS->{'upgrade'} ) {
+if ( exists $CMDPARAMS->{'upgrade'} ) {
     print "curl -sSf " .YAKE_URL. "/install.sh | sudo bash";
     exit 0;
 }
@@ -201,12 +202,12 @@ my $pwd = cwd();
 my $yakefile = "$pwd/$settings->{YAKEFILE}";
 if (! -f $yakefile) {
     print "Cant find \"$settings->{YAKEFILE}\" in Your current directory\n";
-    exit 1;
+    exit 2;
 }
 my $commands = LoadFile($yakefile);
 if ( ! exists $commands->{$CMDNAME} and $CMDNAME ne "_config" and $CMDNAME ne "_tasks" ) {
     print "Cant find \"$CMDNAME\" task in Your \"$settings->{YAKEFILE}\"\n";
-    exit 1;
+    exit 2;
 }
 
 # LOAD USER's YAKEFILE CONFIG
@@ -214,13 +215,13 @@ if ( exists $commands->{'_config'} ) {
     my $configType = ref($commands->{'_config'});
     if ( $configType ne "HASH" ) {
         print "Your \"_config\" section must be an object, \"$configType\" found.\n";
-        exit 1;
+        exit 2;
     }
     while( my( $varName, $varValue ) = each %{$commands->{'_config'}} ){
         my $varValueType = ref($varValue);
         if ( $varValueType ne "" ) {
             print "Your config \"$varName\" value must be string, \"$varValueType\" found.\n";
-            exit 1;
+            exit 2;
         }
         $settings->{$varName} = $varValue;
     }
@@ -259,14 +260,15 @@ while ($found > 0) {
 $settings->{"BIN"} .= " " . $settings->{'ARGS'} . " BIN=\"$CMDSETTINGS->{BIN}\"";
 
 # SHOW CONFIG IF REQUESTED
-if ($CMDNAME eq "_config" || $CMDPARAMS->{'debug'}) {
+if ($CMDNAME eq "_config" || exists $CMDPARAMS->{'debug'}) {
     my $maxKeyLen = (sort{$b<=>$a} map{length($_)} keys %{$settings} )[0];
 
     foreach my $varName (sort keys %{$settings}) {
+        if ( exists $initialSettingKeys->{$varName} and ! exists $CMDPARAMS->{'debug'} ) { next; }
         printf "%-${maxKeyLen}s\t\t%s\n", $varName, $settings->{$varName};
     }
 
-    if ( ! $CMDPARAMS->{'debug'}) {
+    if ( ! exists $CMDPARAMS->{'debug'} or $CMDNAME eq "_config") {
         exit 1;
     }
 } elsif ($CMDNAME eq "_tasks") {
@@ -286,13 +288,15 @@ if ($CMDNAME eq "_config" || $CMDPARAMS->{'debug'}) {
 my $commandType = ref($commands->{$CMDNAME});
 if ( ! ($commandType eq "" or $commandType eq "ARRAY") ) {
     print "Your task \"$CMDNAME\" must be an array or a string, \"$commandType\" found.\n";
+    exit 2;
+}
+
+my $cmd = parseCommand($commands->{$CMDNAME}, $settings) . "\n";
+
+if ( exists $CMDPARAMS->{'debug'}) {
+    print "\n";
+    print $cmd;
     exit 1;
 }
 
-if ($CMDPARAMS->{'debug'}) {
-    print "\n";
-}
-print parseCommand($commands->{$CMDNAME}, $settings) . "\n";
-if ($CMDPARAMS->{'debug'}) {
-    exit 1;
-}
+print $cmd;

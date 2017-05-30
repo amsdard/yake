@@ -5,7 +5,7 @@ returnCode=$?
 
 if [ $returnCode != 0 ]; then
     echo "$cmd";
-    exit $returnCode
+    exit $(($returnCode-1))
 fi
 
 eval "$cmd";

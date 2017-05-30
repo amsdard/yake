@@ -44,10 +44,16 @@ testConfig()
     $YAKE_BIN VAR1=\"long user\" _config 2>&1 | grep -Eq 'VAR2\s+two long user'
     assertEquals "$?" "0";
 
-    $YAKE_BIN VAR1=\"1 2 3 matchVar\" demo echo "matchMe" | grep -Eq 'VAR3 = tree VAR1=1 2 3 matchVar and VAR2=two 1 2 3 matchVar'
+    $YAKE_BIN VAR1='"long user"' _config 2>&1 | grep -Eq 'VAR2\s+two long user'
     assertEquals "$?" "0";
 
-    $YAKE_BIN VAR1=\"1 2 3 matchVar\" demo echo "matchMe and me2" | grep -Eq 'matchMe and me2'
+    $YAKE_BIN VAR1="'long user'" _config 2>&1 | grep -Eq 'VAR2\s+two long user'
+    assertEquals "$?" "0";
+
+    $YAKE_BIN VAR1="'1 2 3 matchVar'" demo echo "matchMe" | grep -Eq 'VAR3 = tree VAR1=1 2 3 matchVar and VAR2=two 1 2 3 matchVar'
+    assertEquals "$?" "0";
+
+    $YAKE_BIN VAR1="'1 2 3 matchVar'" demo echo "matchMe and me2" | grep -Eq 'matchMe and me2'
     assertEquals "$?" "0";
 }
 

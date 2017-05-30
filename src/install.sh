@@ -30,8 +30,21 @@ chmod +x "$installDir/yakeCore.pl" "$installDir/yake"
 # INSTALL AUTO-COMPLETION
 bashCompletionDir="/etc/bash_completion.d"
 if [[ -d $bashCompletionDir ]]; then
-    curl -fsSL "$repoRawUrl/yake_completion.sh" -o "$bashCompletionDir/yake_completion.sh"
+    curl -fsSL "$repoRawUrl/bash/yake_completion.sh" -o "$bashCompletionDir/yake_completion.sh"
     chmod +x "$bashCompletionDir/yake_completion.sh"
+fi
+
+if [[ $ZSH && -d $ZSH ]]; then
+    zshCompletionDir="$ZSH/completions"
+    zshUser=$(ls -ld "$ZSH" | awk '{print $3}')
+    if [[ ! -d $zshCompletionDir ]]; then
+        mkdir $zshCompletionDir;
+        chown $zshUser $zshCompletionDir;
+    fi
+
+    curl -fsSL "$repoRawUrl/zsh/_yake.sh" -o "$zshCompletionDir/_yake"
+    chmod +x "$zshCompletionDir/_yake"
+    chown $zshUser "$zshCompletionDir/_yake";
 fi
 
 # EXIT IF FAILS

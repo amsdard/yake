@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
 _yake() {
-  YAKEFILE=$(echo "$COMP_LINE" | perl -nle 'm/YAKEFILE=["]?(.*)[ "]+/; print $1')
+  YAKEFILE=$(echo "$COMP_LINE" | perl -nle 'm/YAKEFILE=("[^"]+")+/; print $1' );
+  YAKEFILE=${YAKEFILE:-$(echo "$COMP_LINE" | perl -nle "m/YAKEFILE=('[^']+')+/; print \$1")};
+  YAKEFILE=${YAKEFILE:-$(echo "$COMP_LINE" | perl -nle 'm/YAKEFILE=([^\s]+)/; print $1')};
   YAKEFILE=${YAKEFILE:-Yakefile}
 
   tasks=""
