@@ -9,7 +9,7 @@ use Data::Dumper;
 
 use constant {
     VERSION => '2.0',
-    YAKE_URL => 'http://yake.app',
+    YAKE_URL => 'https://yake.amsdard.io',
     VAR_MODE => 1,
     VALUE_MODE => 2,
     VALUE_QUOT_MODE => 3,
@@ -179,7 +179,7 @@ if (
     (keys %{$CMDPARAMS} > 0 and $CMDNAME ne "" and ! exists $CMDPARAMS->{'debug'}) or
     $CMDNAME eq ""
 ) {
-    print "Usage: yake [options...] <task> <CMD>\n";
+    print "Usage: yake [options...] [variables...] <task> <CMD>\n";
     print "\t--version\t see Yake version and check updates\n";
     print "\t--help\t\t show docs \n";
     print "\t--upgrade\t execute Yake upgrade to latest version \n";
@@ -264,7 +264,7 @@ if ($CMDNAME eq "_config" || exists $CMDPARAMS->{'debug'}) {
     my $maxKeyLen = (sort{$b<=>$a} map{length($_)} keys %{$settings} )[0] + 10;
 
     foreach my $varName (sort keys %{$settings}) {
-        if ( exists $initialSettingKeys->{$varName} and ! exists $CMDPARAMS->{'debug'} ) { next; }
+        if ( exists $initialSettingKeys->{$varName} and ! exists $CMDPARAMS->{'debug'} and $varName ne "YAKEFILE" ) { next; }
         printf "%-${maxKeyLen}s%s\n", $varName, $settings->{$varName};
     }
 

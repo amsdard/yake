@@ -88,6 +88,8 @@ by executing long commands using short aliases from local Yakefile">
                         <hr class="star-light">
                         <span class="skills">Simple script to <strong>make Your coding more efficient</strong> <br>
                             by executing long commands using short aliases from local <kbd>Yakefile</kbd></span>
+                        <br><br>
+                        <span>current version: <strong>v2.0</strong></span>
                     </div>
                 </div>
             </div>
@@ -115,6 +117,9 @@ by executing long commands using short aliases from local Yakefile">
                             <code>perl</code> > 5.0
                         </li>
                         <li class="list-group-item">
+                            <code>perl-core</code> > 5.0 (only for RHEL Linux)
+                        </li>
+                        <li class="list-group-item">
                             <code>cpan</code> > 1.0 (<code>build-essential</code> package)
                         </li>
                     </ul>
@@ -122,10 +127,13 @@ by executing long commands using short aliases from local Yakefile">
                     <h3>Changelog</h3>
                     <ul class="list-group">
                         <li class="list-group-item">
-                            <strong>December 12, 2016</strong>: settings fixes
+                            <strong>June 1, 2017</strong> (v2.0): bug fixes, initial arguments (<code>--debug</code>, <code>--version</code>, <code>--upgrade</code> and <code>--help</code>), new special task name <code>_tasks</code>, ZSH completion, able to use spaces in argument value
                         </li>
                         <li class="list-group-item">
-                            <strong>December 1, 2016</strong>: <code>FORCE_ALL</code> param, docs fixes
+                            <strong>December 12, 2016</strong> (v1.1): settings fixes
+                        </li>
+                        <li class="list-group-item">
+                            <strong>December 1, 2016</strong> (v1.0): <code>FORCE_ALL</code> param, docs fixes
                         </li>
                     </ul>
                 </div>
@@ -143,20 +151,15 @@ by executing long commands using short aliases from local Yakefile">
                 </div>
             </div>
             <div class="row">
+                <div class="col-xs-12 text-center">
+                    <img src="yake_help.png" alt="yake --help" class="img-responsive" style="max-width: 100%;">
+                </div>
                 <div class="col-lg-8 col-lg-offset-2">
-                    <ol style="font-size: 16pt;">
+                    <ul style="font-size: 16pt;">
                         <li>
-                            Create <kbd>Yakefile</kbd> in Your project directory
+                            <code>yake</code> loads local YAML <kbd>Yakefile</kbd> to get <strong>tasks</strong> and <strong>configs</strong>
                         </li>
-                        <li>
-                            Edit <kbd>Yakefile</kbd> using YAML structure to definee Your aliases, e.g.
-                            <pre><code class="language-yaml">demo: echo "hello world"</code></pre>
-                        </li>
-                        <li>
-                            Run in console:<br>
-                            <code>yake demo</code>
-                        </li>
-                    </ol>
+                    </ul>
                 </div>
             </div>
             <br>
@@ -174,10 +177,13 @@ by executing long commands using short aliases from local Yakefile">
                             <strong style="color: yellow;">can be overwritten</strong> from console level
                         </li>
                         <li>
-                            You can use <strong>bash auto-completion</strong> to see and type defined tasks
+                            You can use <strong>bash auto-completion</strong> or <strong>ZSH completion</strong> to see and type defined tasks
                         </li>
                         <li>
                             <strong style="color: greenyellow;">all commands, params and attributes</strong> (a string after <strong>TASK_NAME</strong>) <br>will be assigned to <code>$CMD</code> variable
+                        </li>
+                        <li>
+                            <strong style="color: yellow;">all variables with values</strong> (as string) will be assigned to <code>$ARGS</code> variable
                         </li>
                     </ul>
                 </div>
@@ -204,17 +210,20 @@ by executing long commands using short aliases from local Yakefile">
                             able to definee commands as <strong>string</strong> or <strong>array</strong>
                         </li>
                         <li>
-                            internal <strong>recursive and able to overwrite</strong> variables, e.g. <code>$CMD</code>
-                        </li>
-                        <li>
                             <strong>recursive</strong> commands, thanks to <code>$BIN</code> variable
                         </li>
                         <li>
-                            bash <strong>auto-completion</strong>
+                            internal <strong>recursive and able to overwrite</strong> variables
+                        </li>
+                        <li>
+                            bash <strong>auto-completion</strong> and <strong>ZSH completion</strong>
                         </li>
                         <li>
                             <strong>direct redirection</strong> command to bash console<br>
                             <strong>Environment variables</strong> support, <strong>interactive</strong>
+                        </li>
+                        <li>
+                            special task names <code>_config</code> to <strong>display user defined variables</strong> and <code>_tasks</code> to <strong>display </strong><kbd>Yakefile</kbd> <strong>tasks</strong>
                         </li>
                     </ul>
                 </div>
@@ -252,7 +261,6 @@ _config:
 
                     <div class="row">
                         <div class="col-lg-10 col-lg-offset-1">
-
                             <blockquote>
                                 <code>yake hello_world</code>
                             </blockquote>
@@ -267,6 +275,23 @@ x86_64</code></pre>
                             <br>
 
                             <blockquote>
+                                <code>yake --debug VAR=new1 run uname -i</code>
+                            </blockquote>
+                            <pre><code class="language-bash">ARGS               VAR=new1
+BIN                /usr/local/bin/yake VAR=new1 BIN=&quot;/usr/local/bin/yake&quot;
+CMD                uname -i
+FORCE_ALL          0
+VAR                new1
+VAR1               one
+VAR11              eleven
+VAR2               two one
+VAR3               tree VAR1=&quot;one&quot; and VAR2=two new11
+YAKEFILE           Yakefile
+
+echo &quot;running...&quot; &amp;&amp; uname -i </code></pre>
+                            <br>
+
+                            <blockquote>
                                 <code>yake VAR1=new1 demo uname -i</code>
                             </blockquote>
                             <pre><code class="language-bash">dumping demo vars
@@ -276,14 +301,14 @@ running...
 x86_64</code></pre><br>
 
                             <blockquote>
-                                <code>yake VAR1=new-value VAR3=$(uname -m) _config</code>
+                                <code>yake VAR1="'new value'" VAR3=$(uname -m) _config</code>
                             </blockquote>
-                            <pre><code class="language-bash">BIN=/usr/local/bin/yake
-CMD=
-VAR1=new-value
-VAR2=var2 using value1
-VAR3=x86_64
-YAKEFILE=Yakefile</code></pre><br>
+                            <pre><code class="language-bash">VAR3              x86_64
+VAR1               new value
+VAR11              eleven
+VAR2               two new value
+VAR3               tree VAR1="new value" and VAR2=two new value
+YAKEFILE           Yakefile</code></pre><br>
 
                         </div>
                     </div>
@@ -298,9 +323,8 @@ YAKEFILE=Yakefile</code></pre><br>
                             <br><br>
                         </li>
                         <li>
-                            Its impossible to pass string with spaces as variable value, like:<br>
-                            <code>yake V="1 2 3" task</code>. Use <kbd>Yakefile</kbd> <strong>_config</strong>
-                            section instead.
+                            There are 2 ways to pass string with spaces as variable value:<br>
+                            <code>yake V="'1 2 3'" task</code> or <code>yake V='"1 2 3"' task</code>. You just have to use double quoting (<code>'</code> in <code>"</code> or reverse). You can use <kbd>Yakefile</kbd> <strong>_config</strong> section as well also.
                             <br><br>
                         </li>
                         <li>
