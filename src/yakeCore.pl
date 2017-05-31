@@ -261,25 +261,25 @@ $settings->{"BIN"} .= " " . $settings->{'ARGS'} . " BIN=\"$CMDSETTINGS->{BIN}\""
 
 # SHOW CONFIG IF REQUESTED
 if ($CMDNAME eq "_config" || exists $CMDPARAMS->{'debug'}) {
-    my $maxKeyLen = (sort{$b<=>$a} map{length($_)} keys %{$settings} )[0];
+    my $maxKeyLen = (sort{$b<=>$a} map{length($_)} keys %{$settings} )[0] + 10;
 
     foreach my $varName (sort keys %{$settings}) {
         if ( exists $initialSettingKeys->{$varName} and ! exists $CMDPARAMS->{'debug'} ) { next; }
-        printf "%-${maxKeyLen}s\t\t%s\n", $varName, $settings->{$varName};
+        printf "%-${maxKeyLen}s%s\n", $varName, $settings->{$varName};
     }
 
     if ( ! exists $CMDPARAMS->{'debug'} or $CMDNAME eq "_config") {
         exit 1;
     }
 } elsif ($CMDNAME eq "_tasks") {
-    my $maxTaskLen = (sort{$b<=>$a} map{length($_)} keys %{$commands} )[0];
+    my $maxTaskLen = (sort{$b<=>$a} map{length($_)} keys %{$commands} )[0] + 10;
     foreach my $taskName (sort keys %{$commands}) {
         if (substr($taskName, 0, 1) eq "_") { next; }
         my $command = $commands->{$taskName};
         if (ref $command eq "ARRAY" and @{$command}) {
             $command = join " && ", grep defined, @{$command};
         }
-        printf "%-${maxTaskLen}s\t\t%s\n", $taskName, parseCommand($command, $settings, 0);
+        printf "%-${maxTaskLen}s%s\n", $taskName, parseCommand($command, $settings, 0);
     }
     exit 1;
 }

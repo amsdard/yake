@@ -1,29 +1,46 @@
 #compdef yake
 
-_yake() { 
-    local curcontext="$curcontext" state line
+_yake() {
+    local state
     typeset -A opt_args
 
-    YAKEFILE=$(echo "$curcontext" | perl -nle 'm/YAKEFILE=("[^"]+")+/; print $1' );
-    YAKEFILE=${YAKEFILE:-$(echo "$curcontext" | perl -nle "m/YAKEFILE=('[^']+')+/; print \$1")};
-    YAKEFILE=${YAKEFILE:-$(echo "$curcontext" | perl -nle 'm/YAKEFILE=([^\s]+)/; print $1')};
+    YAKEFILE=$(echo "$state" | perl -nle 'm/YAKEFILE=("[^"]+")+/; print $1' );
+    YAKEFILE=${YAKEFILE:-$(echo "$state" | perl -nle "m/YAKEFILE=('[^']+')+/; print \$1")};
+    YAKEFILE=${YAKEFILE:-$(echo "$state" | perl -nle 'm/YAKEFILE=([^\s]+)/; print $1')};
     YAKEFILE=${YAKEFILE:-Yakefile}
 
-    tasks=""
-    configs=""
-
+    words=()
+  
     if test -f "$YAKEFILE"
         then
-            tasks=$(yake YAKEFILE="$YAKEFILE" _tasks | awk '{print $1}')
-            configs=$(yake YAKEFILE="$YAKEFILE" _config | awk '{print $1}')
+            while read -r varName; do
+                words+=("$varName")
+            done <<< $(yake YAKEFILE="$YAKEFILE" _config | awk '{print $1}')
+
+            words+=(
+                '_config:show internal variables'
+                '_tasks:show defined tasks with filled variables'
+            )
+
+            while read -r line; do
+                line=$(echo "$line" | tr -s ' ' );
+                taskName=$(echo "$line" | cut -d ' ' -f 1 | sed 's/^[\s+]*//;s/[\s+]*$//');
+                taskDescription=$(echo "$line" | cut -d ' ' -f 2- | sed 's/^[\s+]*//;s/[\s+]*$//');
+
+                words+=("$taskName:$taskDescription")
+            done <<< "`yake YAKEFILE="$YAKEFILE" _tasks`"
+
         fi
 
-    _arguments \
-        '*: :->word'
+    local -a options arguments
+    options=(
+        '--version:see Yake version and check updates'
+        '--help:show docs'
+        '--upgrade:execute Yake upgrade to latest version'
+        '--debug:do not execute task, show script params and full command as text (able to use with <task> only)'
+    )
 
-    options=('-c:description for -c opt' '-d:description for -d opt')
-arguments=('e:description for e arg' 'f:description for f arg')
-_describe 'values' options -- arguments
+    _describe 'values' options -- words
 
 }
  
