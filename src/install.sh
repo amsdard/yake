@@ -16,6 +16,12 @@ if [[ ! -z "$(perl -MYAML::XS -e 1 2>&1)" ]]; then
     cpan install YAML::XS >/dev/null 2>&1
 fi
 
+if [[ ! -z "$(perl -MYAML::XS -e 1 2>&1)" ]]; then
+    echo "Perl module YAML::XS is not installed! Install it on Your own and run yake install again.";
+    echo "\$ cpanm YAML::XS # cpan install YAML::XS";
+    exit 1;
+fi
+
 # INSTALL BINARIES
 installDir="/usr/local/bin"
 if [[ ! -d $installDir ]]; then
@@ -30,8 +36,21 @@ chmod +x "$installDir/yakeCore.pl" "$installDir/yake"
 # INSTALL AUTO-COMPLETION
 bashCompletionDir="/etc/bash_completion.d"
 if [[ -d $bashCompletionDir ]]; then
-    curl -fsSL "$repoRawUrl/yake_completion.sh" -o "$bashCompletionDir/yake_completion.sh"
+    curl -fsSL "$repoRawUrl/bash/yake_completion.sh" -o "$bashCompletionDir/yake_completion.sh"
     chmod +x "$bashCompletionDir/yake_completion.sh"
+fi
+
+if [[ $ZSH && -d $ZSH ]]; then
+    zshCompletionDir="$ZSH/completions"
+    zshUser=$(ls -ld "$ZSH" | awk '{print $3}')
+    if [[ ! -d $zshCompletionDir ]]; then
+        mkdir $zshCompletionDir;
+        chown $zshUser $zshCompletionDir;
+    fi
+
+    curl -fsSL "$repoRawUrl/zsh/_yake.sh" -o "$zshCompletionDir/_yake"
+    chmod +x "$zshCompletionDir/_yake"
+    chown $zshUser "$zshCompletionDir/_yake";
 fi
 
 # EXIT IF FAILS
@@ -41,5 +60,6 @@ fi
 
 # INSTALLATION FINISHED SUCCESSFULLY
 echo "\"yake\" installed!";
-echo "Create \"Yakefile\" in Your directory and run \"yake YOUR_COMMAND\"";
-echo "Docs: http://yake.amsdard.io"
+echo "";
+echo "You can run now:"
+echo "\$ yake --help";

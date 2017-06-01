@@ -1,0 +1,10 @@
+language: bash
+
+before_install:
+    - sudo apt-get install build-essential shunit2
+    - export PERL_MM_USE_DEFAULT=1
+    - sudo cpan install YAML::XS
+    - export PERL5LIB=/home/travis/perl5/lib/perl5/x86_64-linux-gnu-thread-multi/
+
+script:
+    - shunit2 ./tests/yake.sh
