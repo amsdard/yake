@@ -108,7 +108,7 @@ by executing long commands using short aliases from local Yakefile">
             <div class="row">
                 <div class="col-sm-10 col-sm-offset-1">
                     <blockquote style="font-size:17pt;"><code>
-                        curl -sSf https://yake.amsdard.io/install.sh | sudo bash
+                        curl -sSf https://yake.amsdard.io/install.sh | sudo -E bash
                     </code></blockquote>
                     <br>
                     <h3>Requirements</h3>
@@ -336,6 +336,7 @@ YAKEFILE           Yakefile</code></pre><br>
                             By default, <strong>if one of commands in specified task fails</strong> (return code is
                             more than 0), it stops whole task. To <strong>force executing all commands</strong>, no
                             matter what code is returned, set <code>FORCE_ALL=1</code> param.
+                            <br><br>
                         </li>
                         <li>
                             You can <strong>execute task recursively</strong> using <code>$BIN</code> what enable You to <strong>keep all defined command configs</strong>.

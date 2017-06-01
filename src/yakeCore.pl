@@ -160,6 +160,10 @@ if (defined $vStorage) {
 
 #print Dumper($CMDNAME, $CMDSETTINGS, $CMDPARAMS, $settings->{'CMD'}, $argsMode);exit 1;
 
+if ( exists $CMDPARAMS->{'upgrade'} ) {
+    print "curl -sSf " .YAKE_URL. "/install.sh | sudo -E bash";
+    exit 0;
+}
 if ( exists $CMDPARAMS->{'version'} ) {
     print "yake " . VERSION . " ";
 
@@ -191,10 +195,6 @@ if (
 
     print "\n" . YAKE_URL . "\n";
     exit 1;
-}
-if ( exists $CMDPARAMS->{'upgrade'} ) {
-    print "curl -sSf " .YAKE_URL. "/install.sh | sudo bash";
-    exit 0;
 }
 
 # LOAD Yakefile
