@@ -16,6 +16,12 @@ if [[ ! -z "$(perl -MYAML::XS -e 1 2>&1)" ]]; then
     cpan install YAML::XS >/dev/null 2>&1
 fi
 
+if [[ ! -z "$(perl -MYAML::XS -e 1 2>&1)" ]]; then
+    echo "Perl module YAML::XS is not installed! Install it on Your own and run yake install again.";
+    echo "\$ cpanm YAML::XS # cpan install YAML::XS";
+    exit 1;
+fi
+
 # INSTALL BINARIES
 installDir="/usr/local/bin"
 if [[ ! -d $installDir ]]; then

@@ -152,7 +152,7 @@ by executing long commands using short aliases from local Yakefile">
             </div>
             <div class="row">
                 <div class="col-xs-12 text-center">
-                    <img src="yake_help.png" alt="yake --help" class="img-responsive" style="max-width: 100%;">
+                    <img src="yake_help.png" alt="yake --help" class="img-responsive center-block">
                 </div>
                 <div class="col-lg-8 col-lg-offset-2">
                     <ul style="font-size: 16pt;">
@@ -336,6 +336,9 @@ YAKEFILE           Yakefile</code></pre><br>
                             By default, <strong>if one of commands in specified task fails</strong> (return code is
                             more than 0), it stops whole task. To <strong>force executing all commands</strong>, no
                             matter what code is returned, set <code>FORCE_ALL=1</code> param.
+                        </li>
+                        <li>
+                            You can <strong>execute task recursively</strong> using <code>$BIN</code> what enable You to <strong>keep all defined command configs</strong>.
                         </li>
                     </ul>
                 </div>
