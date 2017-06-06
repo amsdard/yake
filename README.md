@@ -14,7 +14,7 @@ simple script to make Your coding more efficient by executing long commands usin
 
 ## Install
 ```
-curl -sSf https://yake.amsdard.io/install.sh | sudo bash
+curl -sSf https://yake.amsdard.io/install.sh | sudo -E bash
 ```
 
 ## Tests
