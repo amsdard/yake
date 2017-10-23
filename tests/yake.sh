@@ -53,7 +53,17 @@ testConfig()
     $YAKE_BIN VAR1='"1 2 3 matchVar"' demo echo "matchMe" | grep -Eq 'VAR3 = tree VAR1=1 2 3 matchVar and VAR2=two 1 2 3 matchVar'
     assertEquals "$?" "0";
 
+    $YAKE_BIN VAR1='"1 2 3"' demo-proxy echo "" | grep -Eq 'VAR1=1 2 3'
+    assertEquals "$?" "0";
+
     $YAKE_BIN VAR1="'1 2 3 matchVar'" demo echo "matchMe and me2" | grep -Eq 'matchMe and me2'
+    assertEquals "$?" "0";
+}
+
+# internal params
+testWork()
+{
+    $YAKE_BIN cmd "1" 2>&1 | grep -Eq '\-1\-'
     assertEquals "$?" "0";
 }
 
