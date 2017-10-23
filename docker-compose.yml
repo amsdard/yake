@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 
 services:
   yake:
@@ -6,7 +6,12 @@ services:
     build:
         context: ./
         dockerfile: ./doc/docker/Dockerfile
-    network_mode: "bridge"
+    networks:
+      - global
     container_name: yake.amsdard.io
-    environment:
-       - VIRTUAL_HOST=yake.app
+    labels:
+      - "traefik.frontend.rule=Host:yake.amsdard.io.app"
+
+networks:
+  global:
+    external: true

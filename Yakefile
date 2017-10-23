@@ -14,6 +14,10 @@ demo:
   -
   -
 
+cmd: echo "---$CMD---"
+
+demo-proxy: $BIN demo $CMD
+
 _config:
   VAR1: one
   VAR11: eleven

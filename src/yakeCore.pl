@@ -42,6 +42,13 @@ sub ltrim {
     return $s
 };
 
+sub beautyQuotes {
+    my $s = shift;
+    $s =~ s/\\\"/\"\'/;
+    $s =~ s/\\\"/\'\"/;
+    return $s
+};
+
 sub parseCommand {
     my $command = shift;
     my $settings = shift;
@@ -97,7 +104,7 @@ foreach my $v (split //, "@ARGV ") {
         }
 
         if (defined $vStorage and $v eq $endChar) {
-            $CMDSETTINGS->{$vStorageVar} = $vStorage;
+            $CMDSETTINGS->{trim $vStorageVar} = $vStorage;
             if ($vStorageVar eq "YAKEFILE") {
                 $settings->{YAKEFILE} = $vStorage;
             }
@@ -152,7 +159,7 @@ foreach my $v (split //, "@ARGV ") {
 
 if (defined $vStorage) {
     if ($argsMode == CMD_MODE) {
-        $settings->{'CMD'} = $vStorage;
+        $settings->{'CMD'} = trim $vStorage;
     } else {
         $CMDNAME = $vStorage;
     }
@@ -257,7 +264,7 @@ while ($found > 0) {
 }
 
 # ADD CONFIG OVERWRITTIES TO BIN PATH
-$settings->{"BIN"} .= " " . $settings->{'ARGS'} . " BIN=\"$CMDSETTINGS->{BIN}\"";
+$settings->{"BIN"} .= " $settings->{'ARGS'} BIN=\"$CMDSETTINGS->{BIN}\"";
 
 # SHOW CONFIG IF REQUESTED
 if ($CMDNAME eq "_config" || exists $CMDPARAMS->{'debug'}) {
@@ -265,7 +272,7 @@ if ($CMDNAME eq "_config" || exists $CMDPARAMS->{'debug'}) {
 
     foreach my $varName (sort keys %{$settings}) {
         if ( exists $initialSettingKeys->{$varName} and ! exists $CMDPARAMS->{'debug'} and $varName ne "YAKEFILE" ) { next; }
-        printf "%-${maxKeyLen}s%s\n", $varName, $settings->{$varName};
+        printf "%-${maxKeyLen}s%s\n", $varName, beautyQuotes $settings->{$varName};
     }
 
     if ( ! exists $CMDPARAMS->{'debug'} or $CMDNAME eq "_config") {
@@ -295,7 +302,7 @@ my $cmd = parseCommand($commands->{$CMDNAME}, $settings) . "\n";
 
 if ( exists $CMDPARAMS->{'debug'}) {
     print "\n";
-    print $cmd;
+    printf "%s\n", beautyQuotes $cmd;
     exit 1;
 }
 
