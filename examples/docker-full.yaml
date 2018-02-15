@@ -1,0 +1,121 @@
+# ie: yake docker-compose up
+docker-compose:
+  - if [ ! -z "$env" ]; then declare env=-$env; else echo "env not set, using default docker-compose.yml"; fi
+  - docker-compose -f docker-compose${env}.yml $CMD
+
+# ie: yake docker-service mongo
+docker-service: $BIN docker-compose ps | grep $CMD | cut -d " " -f 1
+
+# execute command in service container ie: yake service=mongo exec bash
+exec: docker exec -i `$BIN docker-service $service` $CMD
+
+# Push image of specified tag to repository. Ie. `yake push 0.1`
+push: docker push $registry/$project/$image$CMD
+
+# Creates local image, ie yake image=mega-app image :0.1 to create mega-app:0.1 image
+image: docker build -t $registry/$project/$image$CMD -f docker/$image/Dockerfile .
+
+# Run specified command in image, ie: `yake run bash`
+run: docker run -it $registry/$project/$image $CMD
+
+# assuming you have defined service "mongodb" in your docker-compose with no password
+restore_mongo: $BIN service=mongo exec bash -c "mongorestore -h localhost /opt/dump.tar.gz"
+
+# assuming you have defined service "postgres" in your docker-compose, with user=postgres and dbname=app
+restore_psql:
+  - cat backups/dump.sql | $BIN service=postgres exec /usr/bin/psql -v -U postgres app
+
+# assuming you have defined service "mysql" in your docker-compose, with user=root ans password=root, and dbname=app
+restore_mysql:
+  - cat backups/dump.sql | $BIN service=mysql exec /usr/bin/mysql -v -u root --password=root app
+
+
+# COMPOSE COMMANDS
+
+# build all images specified in docker-compose-$(env).yml , ie: `yake env=dev build`
+build:
+  - $BIN docker-compose build $CMD
+
+# Starts project in foreground.
+up:
+  - $BIN docker-compose up $CMD
+
+# Starts project in background.
+start:
+  - $BIN docker-compose up -d $CMD
+
+# Stops all project containers.
+stop:
+  - $BIN docker-compose stop $CMD
+
+# List all project containers.
+ps:
+  - $BIN docker-compose ps $CMD
+
+# Deletes all project containers.
+rm:
+  - $BIN docker-compose rm -f $CMD
+
+
+
+# RANCHER RELATED COMMANDS
+
+
+# deploy new stack to rancher using docker-compose-prod.yml by default, ie run yake env=stage deploy to use docker-compose-stage.yml
+deploy:
+  - export env=$env
+  - rancher stacks create $project -f docker-compose-${env:-prod}.yml --start
+  - rancher up -d -s $project
+
+# remove stack
+undeploy:
+  - rancher rm $project
+
+# ie: yake scale app=2
+scale:
+  - rancher scale $project/$CMD
+
+# run service
+add:
+  - export env=$env
+  - rancher run $project/$CMD
+
+# upgrade/create services, ie yake upgrade nginx
+upgrade:
+  - export env=$env
+  - rancher up -f docker-compose-${env:-prod}.yml -s $project --force-upgrade $CMD
+
+# confirm upgrade, ie yake confirm nginx
+confirm:
+  - export env=$env
+  - rancher up -f docker-compose-${env:-prod}.yml -s $project --confirm-upgrade $CMD
+
+# rollback upgrade, ie yake rollback nginx
+rollback:
+  - export env=$env
+  - rancher up -f docker-compose-${env:-prod}.yml -s $project --rollback $CMD
+
+# restart existing services, yake restart nginx
+restart:
+  - export env=${env:-prod}
+  - rancher restart $project/$CMD
+
+# Encrypts `vault` directory with a psssw
+# ie: `yake PASS=123 encrypt_vault` will tar and encrypt default "vault" directory
+encrypt_vault:
+    - tar -cf vault.tar vault
+    - openssl aes-128-cbc -in vault.tar -out vault.aes -k $PASS
+    - rm vault.tar
+
+# Decrypt `vault` directory, ie `yake PASS=123 decrypt_vault`
+decrypt_vault:
+    - openssl aes-128-cbc -d -in vault.aes -out vault.tar -k $PASS
+    - tar -xf vault.tar
+    - rm vault.tar
+
+# default values
+_config:
+    env: ''
+    image: app
+    project: koszi
+    registry: amsdard.io
