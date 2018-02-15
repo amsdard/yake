@@ -8,7 +8,7 @@ use YAML::XS 'LoadFile';
 use Data::Dumper;
 
 use constant {
-    VERSION => '2.0',
+    VERSION => '2.1',
     YAKE_URL => 'https://yake.amsdard.io',
     VAR_MODE => 1,
     VALUE_MODE => 2,
